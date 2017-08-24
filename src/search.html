@@ -1,0 +1,81 @@
+<html>
+    <head>
+        <title></title>
+        <link rel="stylesheet" type="text/css" href="posts.css" />
+        <link rel="stylesheet" type="text/css" href="images.css" />
+        <script src="jquery-1.8.1.min.js"></script>
+        <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+        <link rel="icon" href="dlsu.ico" type="ico">
+        <script>
+            $(document).ready(function(){
+                var text = window.location.href;
+                text = text.substring(text.indexOf("?")+1);
+                $.ajax('https://jsonplaceholder.typicode.com/posts?q='+text, {
+                    method: 'GET'
+                }).then(function(data) {
+                    for(var i=0; i<data.length; i++){
+                        var pic = $("<div>").attr("id", "post_item_container");
+                        $("#search_post").append(pic);
+                        $(pic).append("<div id='p_name'><a id='uname' href=users.html?"+data[i].userId+">"+"webapde"+"</a></div><div id='p_title'>"+data[i].title+"</div><div id='p_body'>"+data[i].body+"</div>");
+                    }
+                });
+                $.ajax('https://jsonplaceholder.typicode.com/users?q='+text, {
+                    method: 'GET'
+                }).then(function(data) {
+                    for(var i=0; i<data.length; i++){
+                        var uic=$("<div>").attr("id", "user_item_container");
+                        $("#search_users").append(uic);
+                        $(uic).append("<div id='uic_name'><a id='name' href=users.html?"+data[i].id+">"+data[i].name+"</a></div><div id='uic_username'>"+data[i].username+"</div><div id='uic_email'>"+data[i].email+"</div>");
+                    }
+                });
+                console.log(text); 
+                $.ajax('https://jsonplaceholder.typicode.com/photos?q='+text, {
+                    method: 'GET'
+                }).then(function(data) {
+                    //alert(len.length);
+                    for (i = 0; i < data.length; i++) {
+                            var iic = $("<div>").attr("id", "image_item_container");
+                            $("#search_photos").append(iic);
+                            var tim = $("<img>").attr("src", data[i].thumbnailUrl);
+                            tim.attr("id", "thumbnail");
+                            $(iic).append(tim);
+                            var pop = $("<div>").addClass("popup");
+                            $(iic).append(pop);
+                            var imgpop = $("<img>").attr("id", "imgpopup");
+                            imgpop.attr("src", data[i].url);
+                            var xspan = $("<span>").addClass("close");
+                            $(xspan).html("&times;");
+                            $(pop).append(xspan);
+                            var ipop = $("<div>").attr("id", "imginfo");
+                            $(pop).append(ipop);
+                            $(pop).append(imgpop);
+                            $.ajax('https://jsonplaceholder.typicode.com/albums/'+data[i].albumId, {
+                                method: 'GET'
+                            }).then(function(dataa) {
+                                $.ajax('https://jsonplaceholder.typicode.com/users/'+dataa.userId, {
+                                method: 'GET'
+                                }).then(function(dataaa) {
+                                    $(ipop).append("<div id='username'>Name: <a id='photo_popup_name' href=users.html?"+dataaa.id+">"+dataaa.username+"</a></div><div id='album'>Album Name: <a id='photo_popup_album' href=albums.html?"+dataa.id+">"+dataa.title+"</a></div><div id='title'>Caption: <a id='photo_popup_title'>"+data[i].title+"</a></div>");
+                                });
+                            });
+                            tim.click(function(){
+                                $(pop).css("display", "block");
+                            });
+                            xspan.click(function(){
+                                $(pop).css("display", "none");
+                            });
+                    }
+                });
+            });
+        </script>
+    </head>
+    <body>
+        
+        <div id="search_container" style="margin-left: 200px;">
+            <div id="search_users"></div>
+            <div id="search_photos"></div>
+            <div id="search_post"></div>
+            <div id="search_albums"></div>
+        </div>
+    </body>
+</html>

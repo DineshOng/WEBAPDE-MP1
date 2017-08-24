@@ -1,0 +1,92 @@
+<html>
+    <head>
+        <title></title>
+    <link rel="icon" href="dlsu.ico" type="ico">
+    <link rel="stylesheet" type="text/css" href="icons.css" />
+    <link rel="stylesheet" type="text/css" href="images.css" />
+    <link rel="stylesheet" type="text/css" href="albums.css" />
+    <script src="jquery-1.8.1.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            //alert(location.pathname.substring(location.pathname.lastIndexOf("/") + 1));
+            //var page = window.location.pathname.split("/").pop();
+            var id = window.location.href;
+            id = id.substring(id.indexOf("?")+1);
+            $.ajax('https://jsonplaceholder.typicode.com/albums/'+id, {
+                 method: 'GET'
+            }).then(function(data) {
+                document.title = data.title;
+                $("#album_title").append(data.title);
+                $.ajax('https://jsonplaceholder.typicode.com/users/'+data.userId, {
+                 method: 'GET'
+                }).then(function(dataa) {
+                    $("#name").append(dataa.name);
+                    $("#username").append(dataa.username);
+                });
+            });
+            $.ajax('https://jsonplaceholder.typicode.com/photos?albumId='+id, {
+                method: 'GET'
+            }).then(function(len) {
+                //alert(len.length);
+                for (i = len[0].id; i < len[0].id+len.length; i++) {
+                    $.ajax('https://jsonplaceholder.typicode.com/photos/'+i, {
+                        method: 'GET'
+                    }).then(function(data) {
+                        var iic = $("<div>").attr("id", "image_item_container");
+                        $("#image_container").append(iic);
+                        var tim = $("<img>").attr("src", data.thumbnailUrl);
+                        tim.attr("id", "thumbnail");
+                        $(iic).append(tim);
+                        var pop = $("<div>").addClass("popup");
+                        $(iic).append(pop);
+                        var imgpop = $("<img>").attr("id", "imgpopup");
+                        imgpop.attr("src", data.url);
+                        var xspan = $("<span>").addClass("close");
+                        $(xspan).html("&times;");
+                        $(pop).append(xspan);
+                        var ipop = $("<div>").attr("id", "imginfo");
+                        $(pop).append(ipop);
+                        $(pop).append(imgpop);
+                        $.ajax('https://jsonplaceholder.typicode.com/albums/'+data.albumId, {
+                            method: 'GET'
+                        }).then(function(dataa) {
+                            $.ajax('https://jsonplaceholder.typicode.com/users/'+dataa.userId, {
+                            method: 'GET'
+                            }).then(function(dataaa) {
+                                $(ipop).append("<div id='username'>Name: <a id='photo_popup_name' href=users.html?"+dataaa.id+">"+dataaa.username+"</a></div><div id='album'>Album Name: <a id='photo_popup_album' href=albums.html?"+dataa.id+">"+dataa.title+"</a></div><div id='title'>Caption: <a id='photo_popup_title'>"+data.title+"</a></div>");
+                            });
+                        });
+                        tim.click(function(){
+                            $(pop).css("display", "block");
+                        });
+                        xspan.click(function(){
+                            $(pop).css("display", "none");
+                        });
+                    });
+                }
+            });
+            /*$.ajax('https://jsonplaceholder.typicode.com/posts?q=lorem', {
+                method: 'GET'
+            }).then(function(data) {
+                console.log(data);
+                $("#name").append(data[0].title);
+            });*/
+        });
+    </script>
+    </head>
+    <body>
+        <div id="set-8" class="hi-icon-wrap hi-icon-effect-8">
+            <a href="posts.html" class="hi-icon hi-icon-archive"></a><br>
+            <a href="images.html" class="hi-icon hi-icon-images"></a><br>
+            <!--<a href="albums.html?50" class="hi-icon hi-icon-videos"></a><br>
+            <a href="users.html?10" class="hi-icon hi-icon-user"></a>-->
+	    </div>
+        <div id="names">
+            <div id="name"></div>
+            <div id="username"></div>
+        </div>
+        <div id="album_title"></div>
+        <div id="image_container"></div>
+    </body>
+</html>

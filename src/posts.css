@@ -1,0 +1,48 @@
+body {
+    background-color: #e9ebee;
+}
+#post_container {
+    margin-left: 200px;
+}
+#post_item_container {
+    -webkit-font-smoothing: antialiased;
+    border-radius: 3px;
+    background-color: white;
+    width: 800px;
+    height: auto;
+    margin-bottom: 22px;
+    padding: 20px;
+    transition-duration: 0.15s;
+}
+#post_item_container:hover {
+    outline: none;
+    border-color: #808080;
+    box-shadow: 0 0 20px #808080;
+    transform: scale(1.2);
+}
+#p_name {
+    width: auto;
+    height: 30px;
+    text-align: left;
+    font-size: 25px;
+}
+#uname {
+    text-decoration: none;
+    color: black;
+}
+#uname:hover {
+    text-decoration: underline;
+}
+#p_title {
+    width: auto;
+    height: 30px;
+    text-align: left;
+    font-weight: bold;
+    font-size: 20px;
+    padding-top: 13px;
+    text-decoration: underline;
+}
+#p_body {
+    width: auto;
+    text-align: justify;
+}

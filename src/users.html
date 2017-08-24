@@ -1,0 +1,198 @@
+
+<html>
+    <head>
+        <title></title>
+    <link rel="icon" href="dlsu.ico" type="ico">
+    <link rel="stylesheet" type="text/css" href="icons.css" />
+    <style>
+        body {
+            background-color: #e9ebee;
+        }
+        #map {
+            height: 200px;
+            width: auto;
+            border: 1px solid black;
+        }
+        #user_container {
+            margin-left: 200px;
+        }
+        #profile {
+            
+        }
+        #post {
+            
+        }
+        #album {
+            
+        }
+        #posts {
+            -webkit-font-smoothing: antialiased;
+            border-radius: 3px;
+            background-color: white;
+            width: 800px;
+            height: auto;
+            margin-bottom: 22px;
+            padding: 20px;
+            transition-duration: 0.15s;
+        }
+        #posts:hover {
+            outline: none;
+            border-color: #808080;
+            box-shadow: 0 0 20px #808080;
+            transform: scale(1.1);
+        }
+        #up_title {
+            width: auto;
+            height: 30px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 20px;
+            
+            text-decoration: underline;
+        }
+        #up_body {
+            width: auto;
+            text-align: justify;
+        }
+        #user_album_thumbnail {
+            display: inline-block;
+            padding-right: 10px;
+            padding-bottom: 10px;
+        }
+        img {
+            transition: 0.3s;
+            border-radius: 5px;
+        }
+        img:hover {
+            opacity: 0.7;
+        }
+    </style>
+    <script src="jquery-1.8.1.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script src='https://maps.googleapis.com/maps/api/js?v=3.exp&key=AIzaSyDkxn8yN4gNsYPHbOs5zdrQgqnbZn5b1Fg'></script>
+    <script>
+            function myMap(x, y, name, suite, street, city) {
+                var mapOptions = {
+                    center: new google.maps.LatLng(x, y),
+                    zoom: 2,
+                    mapTypeId: google.maps.MapTypeId.MAP
+                }
+                var map = new google.maps.Map(document.getElementById("map"), mapOptions);
+                var infowindow = new google.maps.InfoWindow({
+                    content:'<strong>'+name+'</strong><br>'+suite+'<br>'+street+', '+city
+                });
+                var marker = new google.maps.Marker({
+                    map: map,
+                    position: new google.maps.LatLng(x, y),
+                });
+                google.maps.event.addListener(marker, 'click', function(){
+                    infowindow.open(map,marker);
+                });
+                infowindow.open(map,marker);
+            }
+
+            var lastPostIndex = 0;
+            var iPost = 0;
+            var lenPost;
+            var lastAlbumIndex = 0;
+            var iAlbum = 0;
+            var lenAlbum;
+
+            $(document).ready(function(){
+                var id = window.location.href;
+                id = id.substring(id.indexOf("?")+1);
+                $.ajax('https://jsonplaceholder.typicode.com/users/'+id, {
+                    method: 'GET'
+                }).then(function(data) {
+                    document.title = data.name;
+                    $("#profile").append("<p id='id'>"+data.id+"</p>");
+                    $("#profile").append("<p id='name'>"+data.name+"</p>");
+                    $("#profile").append("<p id='username'>"+data.username+"</p>");
+                    $("#profile").append("<p id='email'>"+data.email+"</p>");
+                    $("#profile").append("<p id='address'>"+data.address.suite+". "+data.address.street+", "+data.address.city+", "+data.address.zipcode+"</p>");
+                    $("#profile").append("<p id='phone'>"+data.phone+"</p>");
+                    $("#profile").append("<p id='website'>"+data.website+"</p>");
+                    $("#profile").append("<p id='company'>"+data.company.name+", "+data.company.catchPhrase+", "+data.company.bs+"</p>");
+                    myMap(data.address.geo.lat, data.address.geo.lng, data.name, data.address.suite, data.address.street, data.address.city);
+                });
+                
+                $.ajax('https://jsonplaceholder.typicode.com/posts?userId='+id, {
+                    method: 'GET'
+                }).then(function(len) {
+                    lastPostIndex = len[0].id + len.length-1;
+                    lenPost = len;
+                    loadPosts();
+                    
+                });
+                
+                $.ajax('https://jsonplaceholder.typicode.com/albums?userId='+id, {
+                    method: 'GET'
+                }).then(function(data) {
+                    lastAlbumIndex = data.length-1;
+                    lenAlbum = data;
+                    loadAlbums();
+                    
+                });
+            });
+            function loadPosts(){
+               // alert(lastPostIndex + " " + lenPost[0].id)
+                
+                for(iPost=lastPostIndex; iPost>lastPostIndex-2; iPost--){
+                    if(iPost >= lenPost[0].id){
+                        $.ajax('https://jsonplaceholder.typicode.com/posts/'+iPost, {
+                            method: 'GET'
+                        }).then(function(data) {
+                            var posts = $("<div>").attr("id", "posts");
+                            $("#post").append(posts);
+                            $(posts).append("<div id='up_title'>"+data.title+"</div><div id='up_body'>"+data.body+"</div>");
+                        });
+                    }
+                }
+                lastPostIndex = iPost;
+                
+            }
+            function loadAlbums(){
+                for(iAlbum= lastAlbumIndex; iAlbum>lastAlbumIndex-3; iAlbum--){
+                        //$("#album").append(lenAlbum[iAlbum].title+"<br><br>");
+                        //$("#album").append("<img width='150px' height='150px'>");
+                        if(iAlbum>=0){
+                            $.ajax('https://jsonplaceholder.typicode.com/photos?albumId='+lenAlbum[iAlbum].id, {
+                                method: 'GET'
+                            }).then(function(lim) {
+                                var start = parseInt(lim[0].id);
+                                var end =start+(parseInt(lim.length))-1;
+                                console.log("s:"+start+" e:"+end);
+                                $.ajax('https://jsonplaceholder.typicode.com/photos/'+Math.floor((Math.random() * (end-start)) + start), {
+                                    method: 'GET'
+                                }).then(function(dataa) {
+                                    var pic = $("<img>").attr("src", dataa.thumbnailUrl).attr("id", "albumThumbnail");
+                                    var apic= $("<a>").attr("href", "albums.html?"+dataa.albumId);
+                                    var uat= $("<div>").attr("id", "user_album_thumbnail");
+                                    $(apic).append(pic);
+                                    $(uat).append(apic);
+                                    $("#album").append(uat);
+                                });
+                            });
+                        }
+                }
+                lastAlbumIndex = iAlbum;
+            }
+    </script>
+    </head>
+    <body>
+        <div id="set-8" class="hi-icon-wrap hi-icon-effect-8">
+            <a href="posts.html" class="hi-icon hi-icon-archive"></a><br>
+            <a href="images.html" class="hi-icon hi-icon-images"></a><br>
+            <!--<a href="albums.html?50" class="hi-icon hi-icon-videos"></a><br>
+            <a href="users.html?1" class="hi-icon hi-icon-user"></a>-->
+	    </div>
+        <div id="user_container">
+            <div id="profile"></div>
+            <div id="map"></div>
+            <div id="post"></div>
+            <div style="text-align: center"><button id="loadMorePosts" onclick="loadPosts()"> LOAD MORE POSTS</button></div>
+            <div id="album"></div>
+            <div style="text-align: center"><button id="loadMoreAlbums" onclick="loadAlbums()"> LOAD MORE ALBUMS</button></div>
+        </div>
+    </body>
+</html>
